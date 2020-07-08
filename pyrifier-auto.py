@@ -1,5 +1,7 @@
+#!/usr/bin/env python
+
 ##########################################################################################################################
-# pyrifier-auto.py v0.1                                                                                                  #
+# pyrifier-auto.py v0.1.1                                                                                                  #
 #                                                                                                                        #
 # PyEZ RIPE Filter Automation, hence PyRIFier-Auto.                                                                      #
 # This is simple Python RIPE database parsing tool that finds all routes for AS or AS-SET and updates JunOS prefix list. #
@@ -7,8 +9,6 @@
 #                                                                                                                        #
 # Written by Eugene Khabarov on 07.08.2020 and published under GPLv3 license                                             #
 ##########################################################################################################################
-
-#!/usr/bin/env python
 
 import sys
 import getpass
@@ -53,35 +53,37 @@ def resolve_as_set(as_set):
 
 #Main program begins here
 cmdline = argparse.ArgumentParser(description="Python RIPE Database Parsing Tool That Finds All ROUTES for AS or AS-SET and Updates JUNOS Prefix Lists")
-cmdline.add_argument("-t", metavar="router", help="Target router to query", required=True)
+cmdline.add_argument("-t", metavar="router", help="Target router to connect", required=True)
 cmdline.add_argument("-l", metavar="prefix-list", help="prefix-list name", required=True)
-cmdline.add_argument("-p", metavar="port", help="TCP port", default=830)
+cmdline.add_argument("-p", metavar="port", help="NETCONF TCP port, default is 830", default=830)
 cmdline.add_argument("-u", metavar="username", help="Remote username", default="auto")
 cmdline.add_argument("-n", metavar="as-set", help="BGP AS or AS-SET to resolve into corresponding routes", required=True)
+cmdline.add_argument("-d", help="clear/delete prefix list before updating with new data", default=False, action='store_true')
 args=cmdline.parse_args()
 
 if (args.n==None):
         print "Nothing to do!"
         sys.exit(1)
 
-#key-based autentication only!
+#use ssh key-based autentication only!
 dev = Device(host=args.t, user=args.u, port=args.p)
 dev.open()
-#default is 30s, this is not enough, see https://www.juniper.net/documentation/en_US/junos-pyez/topics/task/troubleshooting/junos-pyez-configuration-errors-troubleshooting.html
+#default is 30s, not enough, see https://www.juniper.net/documentation/en_US/junos-pyez/topics/task/troubleshooting/junos-pyez-configuration-errors-troubleshooting.html
 dev.timeout = 120
 
 with Config(dev, mode="private") as config:
     if args.n!=None:
         #define empty list of routes
         routes = []
-        #cleanup prefix-list
-        try:
-            config.load("delete policy-options prefix-list %s" % (args.l), format="set")
-        except ConfigLoadError, e:
-            if (e.rpc_error['severity']=='warning'):
-                print "Warning: %s" % e.message
-            else:
-                raise
+        if args.d:
+            #cleanup prefix-list
+            try:
+                config.load("delete policy-options prefix-list %s" % (args.l), format="set")
+            except ConfigLoadError, e:
+                if (e.rpc_error['severity']=='warning'):
+                    print "Warning: %s" % e.message
+                else:
+                    raise
         #iterate through AS/AS-SET
         for x in resolve_as_set(args.n):
             req = "https://rest.db.ripe.net/search.json?inverse-attribute=origin&type-filter=route&source=ripe&query-string=" + x
