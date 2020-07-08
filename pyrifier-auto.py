@@ -64,10 +64,10 @@ if (args.n==None):
         print "Nothing to do!"
         sys.exit(1)
 
-#key-nased autentication only!
+#key-based autentication only!
 dev = Device(host=args.t, user=args.u, port=args.p)
 dev.open()
-#default is 30s, not enough, see https://www.juniper.net/documentation/en_US/junos-pyez/topics/task/troubleshooting/junos-pyez-configuration-errors-troubleshooting.html
+#default is 30s, this is not enough, see https://www.juniper.net/documentation/en_US/junos-pyez/topics/task/troubleshooting/junos-pyez-configuration-errors-troubleshooting.html
 dev.timeout = 120
 
 with Config(dev, mode="private") as config:
