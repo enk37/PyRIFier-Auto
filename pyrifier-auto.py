@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 ##########################################################################################################################
-# pyrifier-auto.py v0.1.1                                                                                                  #
+# pyrifier-auto.py v0.1.2                                                                                                  #
 #                                                                                                                        #
 # PyEZ RIPE Filter Automation, hence PyRIFier-Auto.                                                                      #
 # This is simple Python RIPE database parsing tool that finds all routes for AS or AS-SET and updates JunOS prefix list. #
@@ -57,6 +57,7 @@ cmdline.add_argument("-t", metavar="router", help="Target router to connect", re
 cmdline.add_argument("-l", metavar="prefix-list", help="prefix-list name", required=True)
 cmdline.add_argument("-p", metavar="port", help="NETCONF TCP port, default is 830", default=830)
 cmdline.add_argument("-u", metavar="username", help="Remote username", default="auto")
+cmdline.add_argument("-k", metavar="keyfile", help="Path to ssh key file, default is ~/.ssh/id_rsa", default="~/.ssh/id_rsa")
 cmdline.add_argument("-n", metavar="as-set", help="BGP AS or AS-SET to resolve into corresponding routes", required=True)
 cmdline.add_argument("-d", help="clear/delete prefix list before updating with new data", default=False, action='store_true')
 args=cmdline.parse_args()
@@ -66,7 +67,7 @@ if (args.n==None):
         sys.exit(1)
 
 #use ssh key-based autentication only!
-dev = Device(host=args.t, user=args.u, port=args.p)
+dev = Device(host=args.t, user=args.u, port=args.p, ssh_private_key_file=args.k)
 dev.open()
 #default is 30s, not enough, see https://www.juniper.net/documentation/en_US/junos-pyez/topics/task/troubleshooting/junos-pyez-configuration-errors-troubleshooting.html
 dev.timeout = 120
