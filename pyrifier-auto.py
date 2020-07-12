@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 
-##########################################################################################################################
-# pyrifier-auto.py v0.1.2                                                                                                  #
-#                                                                                                                        #
-# PyEZ RIPE Filter Automation, hence PyRIFier-Auto.                                                                      #
-# This is simple Python RIPE database parsing tool that finds all routes for AS or AS-SET and updates JunOS prefix list. #
-# It can be useful for cron based tasks to update your filters automatically                                             #
-#                                                                                                                        #
-# Written by Eugene Khabarov on 07.08.2020 and published under GPLv3 license                                             #
-##########################################################################################################################
+############################################################################################################################
+# pyrifier-auto.py v0.1.3                                                                                                  #
+#                                                                                                                          #
+# PyEZ RIPE Filter Automation, hence PyRIFier-Auto.                                                                        #
+# This is a simple Python RIPE database parsing tool that finds all routes for AS or AS-SET and updates JunOS prefix list. #
+# It can be useful for cron based tasks to update your filters automatically                                               #
+#                                                                                                                          #
+# Written by Eugene Khabarov on 07.08.2020 and published under GPLv3 license                                               #
+############################################################################################################################
 
 import sys
 import getpass
@@ -42,7 +42,7 @@ def resolve_as_set(as_set):
                     if y["referenced-type"] == "aut-num":
                         as_list.append(y["value"])
                     else:
-                        resolve_as_set(y["value"])
+                        as_list += resolve_as_set(y["value"])
         elif x["type"] == "aut-num":
             for y in  x["attributes"]["attribute"]:
                 if y["name"] == "aut-num":
@@ -109,6 +109,8 @@ with Config(dev, mode="private") as config:
         diff = config.diff()
         if (diff!=None):
                 print diff
-        config.commit()
+                config.commit()
+        else:
+            print "Notification: there are no changes were made"
 
 dev.close()
