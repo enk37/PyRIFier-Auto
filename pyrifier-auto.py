@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 ############################################################################################################################
-# pyrifier-auto.py v0.1.3                                                                                                  #
+# pyrifier-auto.py v0.1.4                                                                                                  #
 #                                                                                                                          #
 # PyEZ RIPE Filter Automation, hence PyRIFier-Auto.                                                                        #
 # This is a simple Python RIPE database parsing tool that finds all routes for AS or AS-SET and updates JunOS prefix list. #
@@ -94,7 +94,8 @@ with Config(dev, mode="private") as config:
                 raise ApiError('GET /tasks/ {}'.format(resp.status_code))
             #get list of routes
             for y in resp.json()["objects"]["object"]:
-                routes.append(y["primary-key"]["attribute"][0]["value"])
+                if y["primary-key"]["attribute"][0]["name"] == "route":
+                    routes.append(y["primary-key"]["attribute"][0]["value"])
 
         #iterate through list of routes and add to the prefix-list
         for p in routes:
@@ -111,6 +112,6 @@ with Config(dev, mode="private") as config:
                 print diff
                 config.commit()
         else:
-            print "Notification: there are no changes were made"
+            print "Notification: no changes were made"
 
 dev.close()
