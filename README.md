@@ -1,8 +1,8 @@
 # PyRIFier-Auto
 PyEZ RIPE Filter Automation, hence PyRIFier-Auto. This is simple Python RIPE database parsing tool that finds all routes for AS or AS-SET and updates JunOS prefix list. Can be useful for cron based tasks to update your filters.
 
-usage: pyrifier-auto_0.1.4.py [-h] -t router -l prefix-list [-p port]
-                              [-u username] [-k keyfile] -n as-set [-d]
+usage: pyrifier-auto.py [-h] -t router -l prefix-list [-p port]
+                              [-u username] [-k keyfile] [-n as-set] [-d]
 
   -h, --help      show this help message and exit
   
@@ -18,4 +18,4 @@ usage: pyrifier-auto_0.1.4.py [-h] -t router -l prefix-list [-p port]
   
   -n as-set       BGP AS or AS-SET to resolve into corresponding routes
   
-  -d              clear/delete prefix list before updating with new data
+  -d              delete prefix list or clear it before updating with new data if combined with -n option
